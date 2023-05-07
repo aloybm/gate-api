@@ -36,7 +36,7 @@ const masuk = (req, res) => {
 }
 
 const keluar = (req, res) => {
-    return mssqlService.masuk(req)
+    return mssqlService.keluar(req)
     .then(resData => {
         res.status(200).json({  
             'result': resData
