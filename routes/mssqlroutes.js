@@ -6,5 +6,5 @@ module.exports = app => {
     router.post('/masuk', mssqlController.masuk);
     router.post('/keluar', mssqlController.keluar)
 
-    app.use('/api', router);
+    app.use('/', router);
 }

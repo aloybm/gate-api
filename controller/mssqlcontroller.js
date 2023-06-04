@@ -22,7 +22,7 @@ const masuk = (req, res) => {
     return mssqlService.masuk(req)
     .then(resData => {
         res.status(200).json({
-            'result' :resData
+            'return' :resData
         });
     })
     .catch(err => {
@@ -39,7 +39,7 @@ const keluar = (req, res) => {
     return mssqlService.keluar(req)
     .then(resData => {
         res.status(200).json({  
-            'result': resData
+            'return': resData
         });
     })
     .catch(err => {

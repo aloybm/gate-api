@@ -3,21 +3,20 @@ const {
 } = require('../connections/mssqldb.js')
 
 
-async function insertlog(idKartu, idGate, jenisAktivitas, is_valid) {
+async function insertlog(idKartu, idGate, cek, is_valid) {
     let table;
-    if (jenisAktivitas == 'MASUK') table = 'log_masuk';
+    if (cek == 'MASUK') table = 'log_masuk';
     else table = 'log_keluar';
     const query = `INSERT INTO ${table} (id_kartu_akses, id_register_gate, is_valid) VALUES ('${idKartu}', ${idGate}, ${is_valid})`;
     try {
         const pool = await poolPromise;
         const result = await pool.request()
             .query(query);
-        console.log(`Aktivitas ${jenisAktivitas} berhasil dicatat.`);
+        console.log(`Aktivitas ${cek} berhasil dicatat.`);
         return result;
     } catch (err) {
-        console.log(`Gagal mencatat aktivitas ${jenisAktivitas}: ${err}`);
+        console.log(`Gagal mencatat aktivitas ${cek}: ${err}`);
         throw err;
-        
     }
 }
 
@@ -32,7 +31,7 @@ const getAllData = async (req,res) => {
         else
             return null;
     } catch(err){
-        res.status(500);
+        // res.status(500);
         return err.message;
     }
 }
@@ -49,12 +48,13 @@ const masuk = async (req, res) => {
             .input('idgate', idgate)
             .query(`SELECT * FROM register_gate WHERE id_register_gate = '${idgate}'`);
     
-        if (result.recordset.length === 0) {
-            return 'Invalid id gate';
-          } else if (result.recordset[0].is_aktif == 1 && result2.recordset[0].id_kartu_akses !=0) {
+        if (result.recordset.length === 0 || result2.recordset.length === 0) {
+            console.log("Invalid idgate or idkartu ");
+            return '0';
+          } else if (result.recordset[0].is_aktif == 1) {
             insertlog(idkartu, idgate, "MASUK", 1);
             return '1';
-          } else if (result.recordset[0].is_aktif == 0 || result2.recordset[0].id_kartu_akses !=0) {
+          } else if (result.recordset[0].is_aktif == 0 ) {
             insertlog(idkartu, idgate,"MASUK", 0);
             return '0';
           }
@@ -78,17 +78,18 @@ const keluar = async (req, res) => {
             .input('idgate', idgate)
             .query(`SELECT * FROM register_gate WHERE id_register_gate = '${idgate}'`);
 
-        if (result.recordset.length === 0) {
-            return 'Invalid id tipe gate';
-        } else if (result.recordset[0].is_aktif == 1 && result2.recordset[0].id_kartu_akses != 0) {
+        if (result.recordset.length === 0 || result2.recordset.length === 0) {
+            console.log("Invalid idgate or idkartu ");
+            return '0';
+        } else if (result.recordset[0].is_aktif == 1) {
             insertlog(idkartu, idgate, "KELUAR", 1);
             return '1';
-        } else if (result.recordset[0].is_aktif == 0 || result2.recordset[0].id_kartu_akses != 0) {
+        } else if (result.recordset[0].is_aktif == 0) {
             insertlog(idkartu, idgate, "KELUAR", 0);
             return '0';
         }
     } catch(err){
-        res.status(500);
+        // res.status(500);
         return err.message;
     }
 }
